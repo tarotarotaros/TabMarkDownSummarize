@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Output Destination and API Key Settings</title>
+</head>
+
+<body>
+    <h1>Settings</h1>
+
+    <!-- 出力先設定 -->
+    <label for="outputDest">Output Destination (default: popup):</label>
+    <select id="outputDest">
+        <option value="popup">Popup</option>
+        <option value="file">File</option>
+        <option value="clipboard">Clipboard</option>
+    </select>
+    <br /><br />
+
+    <!-- OpenAI APIキー設定 -->
+    <label for="apiKey">OpenAI API Key:</label>
+    <input type="text" id="apiKey" placeholder="Enter your API key" />
+    <br /><br />
+
+    <button id="saveSettings">Save Settings</button>
+
+    <script src="options.js"></script>
+</body>
+
+</html>

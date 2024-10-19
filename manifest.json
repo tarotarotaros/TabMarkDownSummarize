@@ -1,0 +1,31 @@
+{
+    "manifest_version": 3,
+    "name": "Tab Markdown Exporter with Summary",
+    "version": "1.0",
+    "permissions": [
+        "tabs",
+        "storage",
+        "downloads",
+        "scripting",
+        "activeTab"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "commands": {
+        "export_tabs": {
+            "suggested_key": {
+                "default": "Ctrl+M"
+            },
+            "description": "Export tab titles, URLs, and summaries as Markdown"
+        }
+    },
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "options_page": "options.html",
+    "host_permissions": [
+        "http://*/*",
+        "https://*/*"
+    ]
+}
