@@ -22,23 +22,36 @@ async function summarizeText(text, apiKey) {
 
 // APIキーと出力先設定の保存
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.set({ outputDest: 'popup', apiKey: '' }, () => {
+    chrome.storage.local.set({ outputDest: 'popup', apiKey: '', useApiSummary: '' }, () => {
         console.log("Default settings saved");
     });
 });
 
-// ショートカットキーが押されたときに処理を開始
+// オプションページでAPIキーと出力先を保存する処理（このコードはoptions.htmlから実行）
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.type === "saveSettings") {
+        const { outputDest, apiKey, useApiSummary } = request.data;
+        chrome.storage.local.set({ outputDest, apiKey, useApiSummary }, () => {
+            console.log("Settings saved:", request.data);
+            sendResponse({ status: "success" });
+        });
+        return true;
+    }
+});
+
+
 chrome.commands.onCommand.addListener((command) => {
     if (command === "export_tabs") {
         chrome.windows.getCurrent({ populate: true }, async (window) => {
             let markdown = '';
 
-            // APIキーと出力先の設定を取得
-            chrome.storage.local.get(['outputDest', 'apiKey'], async (data) => {
+            // APIキー、出力先、API要約の設定を取得
+            chrome.storage.local.get(['outputDest', 'apiKey', 'useApiSummary'], async (data) => {
                 const apiKey = data.apiKey;
                 const outputDest = data.outputDest || 'popup';
+                const useApiSummary = data.useApiSummary || false;  // API要約の使用を設定
 
-                if (!apiKey) {
+                if (useApiSummary && !apiKey) {
                     console.error("API key is not set.");
                     alert("Please set your OpenAI API key in the settings.");
                     return;
@@ -46,7 +59,6 @@ chrome.commands.onCommand.addListener((command) => {
 
                 // タブごとの処理を非同期で処理し、全てのタブの要約が完了するのを待つ
                 const tabSummaries = window.tabs.map(async (tab) => {
-                    // chrome:// や chrome-extension:// のページはスキップする
                     if (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
                         console.warn(`Skipping chrome:// or chrome-extension:// URL: ${tab.url}`);
                         return '';
@@ -65,14 +77,16 @@ chrome.commands.onCommand.addListener((command) => {
 
                     const pageContent = results[0].result || '';
 
-                    console.log(pageContent);
+                    // 要約処理（設定に基づいて要約するかどうか）
+                    let summary = "";
+                    if (useApiSummary) {
+                        summary = await summarizeText(pageContent, apiKey);
+                        return `- [${tab.title}](${tab.url})\n`;
+                    } else {
+                        // タブのタイトルとURL、そして要約をマークダウンに追加
+                        return `- [${tab.title}](${tab.url})\n  - Summary: ${summary}\n\n`;
+                    }
 
-
-                    // ページ内容の要約を生成
-                    const summary = await summarizeText(pageContent, apiKey);
-
-                    // タブのタイトルとURL、そして要約をマークダウンに追加
-                    return `- [${tab.title}](${tab.url})\n  - Summary: ${summary}\n\n`;
                 });
 
                 // すべてのタブの要約が完了するのを待つ
@@ -109,14 +123,3 @@ chrome.commands.onCommand.addListener((command) => {
     }
 });
 
-// オプションページでAPIキーと出力先を保存する処理（このコードはoptions.htmlから実行）
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type === "saveSettings") {
-        const { outputDest, apiKey } = request.data;
-        chrome.storage.local.set({ outputDest, apiKey }, () => {
-            console.log("Settings saved:", request.data);
-            sendResponse({ status: "success" });
-        });
-        return true;
-    }
-});
