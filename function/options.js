@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const apiKey = document.getElementById('apiKey').value;
         const useApiSummary = document.getElementById('useApiSummary').checked;
 
-        chrome.storage.local.set({ outputDest, apiKey }, () => {
+        chrome.storage.local.set({ outputDest, apiKey, useApiSummary }, () => {
             alert("Settings saved!");
         });
     });

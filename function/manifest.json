@@ -3,6 +3,7 @@
     "name": "Tab Markdown Exporter with Summary",
     "version": "1.0",
     "permissions": [
+        "contextMenus",
         "tabs",
         "storage",
         "downloads",
