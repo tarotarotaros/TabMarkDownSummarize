@@ -2,13 +2,13 @@
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: "exportTabs",
-        title: "Export tabs as Markdown",
+        title: "タブをマークダウン形式でエクスポート",
         contexts: ["all"]
     });
 
     // デフォルトの設定を保存
-    chrome.storage.local.set({ outputDest: 'popup', apiKey: '', useApiSummary: false }, () => {
-        console.log("Default settings saved");
+    chrome.storage.local.set({ outputDest: 'file', apiKey: '', useApiSummary: false }, () => {
+        console.log("デフォルトの設定を保存しました。");
     });
 });
 
@@ -34,12 +34,12 @@ function exportTabsAsMarkdown() {
         // APIキー、出力先、API要約の設定を取得
         chrome.storage.local.get(['outputDest', 'apiKey', 'useApiSummary'], async (data) => {
             const apiKey = data.apiKey;
-            const outputDest = data.outputDest || 'popup';
+            const outputDest = data.outputDest || 'file';
             const useApiSummary = data.useApiSummary || false;  // API要約の使用を設定
 
             if (useApiSummary && !apiKey) {
                 console.error("API key is not set.");
-                alert("Please set your OpenAI API key in the settings.");
+                alert("API key が設定されていません。設定画面から設定してください。");
                 return;
             }
 
@@ -57,7 +57,7 @@ function exportTabsAsMarkdown() {
                 });
 
                 if (!results || !results[0] || !results[0].result) {
-                    console.warn(`No content found for tab: ${tab.url}`);
+                    console.warn(`タブのコンテンツが見つかりません。: ${tab.url}`);
                     return '';
                 }
 
@@ -66,7 +66,7 @@ function exportTabsAsMarkdown() {
                 let summary = "";
                 if (useApiSummary) {
                     summary = await summarizeText(pageContent, apiKey);
-                    return `- [${tab.title}](${tab.url})\n  - Summary: ${summary}\n\n`;
+                    return `- [${tab.title}](${tab.url})\n  - ${summary}\n\n`;
                 } else {
                     return `- [${tab.title}](${tab.url})\n`;
                 }
@@ -82,10 +82,10 @@ function exportTabsAsMarkdown() {
             // 全てのタブ処理が終わったら、出力先にマークダウンを保存
             if (outputDest === 'popup') {
                 chrome.storage.local.set({ markdownOutput: markdown }, () => {
-                    console.log("Markdown saved to popup!");
+                    console.log("ポップアップを保存しました。");
                 });
             } else if (outputDest === 'file') {
-                const filename = 'tabs_with_summaries.md';
+                const filename = 'tabs_summaries.md';
                 const markdownFile = `data:text/markdown;charset=utf-8,${encodeURIComponent(markdown)}`;
 
                 chrome.downloads.download({
@@ -93,13 +93,13 @@ function exportTabsAsMarkdown() {
                     filename: filename,
                     saveAs: true
                 }, () => {
-                    console.log("Markdown saved to file!");
+                    console.log("マークダウンファイルを保存しました。");
                 });
             } else if (outputDest === 'clipboard') {
                 navigator.clipboard.writeText(markdown).then(() => {
-                    console.log("Markdown copied to clipboard!");
+                    console.log("クリップボードにコピーしました。");
                 }).catch(err => {
-                    console.error('Could not copy text: ', err);
+                    console.error('コピーできませんでした。：', err);
                 });
             }
         });
@@ -125,5 +125,5 @@ async function summarizeText(text, apiKey) {
     });
 
     const data = await response.json();
-    return data.choices && data.choices[0] ? data.choices[0].message.content : "No summary available.";
+    return data.choices && data.choices[0] ? data.choices[0].message.content : "※要約できませんでした。";
 }

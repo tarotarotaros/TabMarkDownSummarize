@@ -2,31 +2,31 @@
 <html>
 
 <head>
-    <title>Output Destination and API Key Settings</title>
+    <title>マークダウン出力設定</title>
 </head>
 
 <body>
-    <h1>Settings</h1>
+    <h1>設定</h1>
 
     <!-- 出力先設定 -->
-    <label for="outputDest">Output Destination (default: popup):</label>
+    <label for="outputDest">Output Destination (既定: ファイル):</label>
     <select id="outputDest">
-        <option value="popup">Popup</option>
-        <option value="file">File</option>
-        <option value="clipboard">Clipboard</option>
+        <option value="file">ファイル</option>
+        <option value="popup">ポップアップ</option>
+        <option value="clipboard">クリップボード</option>
     </select>
     <br /><br />
 
+    <label for="useApiSummary">API 要約:</label>
+    <input type="checkbox" id="useApiSummary" />
+    <br /><br />
+
     <!-- OpenAI APIキー設定 -->
-    <label for="apiKey">OpenAI API Key:</label>
+    <label for="apiKey">API Key:</label>
     <input type="text" id="apiKey" placeholder="Enter your API key" />
     <br /><br />
 
-    <label for="useApiSummary">Enable API Summary:</label>
-    <input type="checkbox" id="useApiSummary" />
-    <br /><br />
-    
-    <button id="saveSettings">Save Settings</button>
+    <button id="saveSettings">設定を保存する</button>
 
     <script src="options.js"></script>
 </body>

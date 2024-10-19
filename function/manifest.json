@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Tab Markdown Exporter with Summary",
+    "name": "Tab Markdown Exporter",
     "version": "1.0",
     "permissions": [
         "contextMenus",

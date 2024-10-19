@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('save').addEventListener('click', () => {
         const markdown = document.getElementById('output').value;
         chrome.storage.local.set({ markdownOutput: markdown }, () => {
-            alert("Markdown saved!");
+            alert("保存しました。");
         });
     });
 });
